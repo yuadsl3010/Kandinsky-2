@@ -94,10 +94,13 @@ def get_kandinsky2_1(
     use_auth_token=None,
     use_flash_attention=False,
     proxies: Optional[Dict] = None,
+    local_files_only=False,
 ):
     repo_id="ai-forever/Kandinsky_2.1"
     cache_dir = os.path.join(cache_dir, "2_1")
     config = DictConfig(deepcopy(CONFIG_2_1))
+    if device == 'cpu':
+        config["model_config"]["use_fp16"] = False
     config["model_config"]["use_flash_attention"] = use_flash_attention
     if task_type == "text2img":
         model_name = "decoder_fp16.ckpt"
@@ -108,6 +111,7 @@ def get_kandinsky2_1(
         filename=model_name,
         cache_dir=cache_dir,
         use_auth_token=use_auth_token,
+        local_files_only=local_files_only,
     )
     prior_name = "prior_fp16.ckpt"
     hf_hub_download(
@@ -115,6 +119,7 @@ def get_kandinsky2_1(
         filename=prior_name,
         cache_dir=cache_dir,
         use_auth_token=use_auth_token,
+        local_files_only=local_files_only,
     )
 
     cache_dir_text_en = os.path.join(cache_dir, "text_encoder")
@@ -131,6 +136,7 @@ def get_kandinsky2_1(
             filename=f"text_encoder/{name}",
             cache_dir=cache_dir_text_en,
             use_auth_token=use_auth_token,
+            local_files_only=local_files_only,
         )
 
     hf_hub_download(
@@ -138,6 +144,7 @@ def get_kandinsky2_1(
         filename="movq_final.ckpt",
         cache_dir=cache_dir,
         use_auth_token=use_auth_token,
+        local_files_only=local_files_only,
     )
 
     hf_hub_download(
@@ -145,6 +152,7 @@ def get_kandinsky2_1(
         filename="ViT-L-14_stats.th",
         cache_dir=cache_dir,
         use_auth_token=use_auth_token,
+        local_files_only=local_files_only,
     )
 
     config["tokenizer_name"] = cache_dir_text_en
@@ -165,6 +173,7 @@ def get_kandinsky2(
     model_version="2.1",
     use_flash_attention=False,
     proxies: Optional[Dict] = None,
+    local_files_only = False,
 ):
     if model_version == "2.0":
         model = get_kandinsky2_0(
@@ -180,7 +189,8 @@ def get_kandinsky2(
             cache_dir=cache_dir,
             use_auth_token=use_auth_token,
             use_flash_attention=use_flash_attention,
-            proxies=proxies
+            proxies=proxies,
+            local_files_only=local_files_only,
         )
     else:
         raise ValueError("Only 2.0 and 2.1 is available")
